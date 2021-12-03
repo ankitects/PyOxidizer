@@ -421,7 +421,13 @@ impl<'a> EmbeddedPythonContext<'a> {
 
             std::fs::write(dest_dir.as_ref().join(filename), text.as_bytes())?;
         }
+        Ok(())
+    }
 
+    /// Write extra files like dynamic extension modules to the build folder.
+    pub fn write_extra_files(&self, dest_dir: impl AsRef<Path>) -> Result<()> {
+        self.extra_files
+            .materialize_files(dest_dir.as_ref().join("extra_files"))?;
         Ok(())
     }
 
@@ -437,6 +443,8 @@ impl<'a> EmbeddedPythonContext<'a> {
             .context("write_pyo3_config()")?;
         self.write_licensing(dest_dir)
             .context("write_licensing()")?;
+        self.write_extra_files(&dest_dir)
+            .context("write_extra_files()")?;
 
         Ok(())
     }
